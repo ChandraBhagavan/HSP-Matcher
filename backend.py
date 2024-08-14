@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jul  8 12:37:59 2024
-
-@author: kommuchandravenkatasaibhagavan
-"""
-
 from flask import Flask, request, render_template, jsonify
 import pandas as pd
 
@@ -25,10 +17,13 @@ def find_matching_solvents(polymer_hsp, solvents_df):
         D = D_squared ** 0.5
         return D
 
-    solvents_df["D"] = solvents_df.apply(calculate_D, axis=1)
-    solvents_df["Match Quality"] = solvents_df["D"].apply(lambda x: "Reasonable Match" if x < 4 else ("Poor Match" if x > 8 else "Average Match"))
-    matching_solvents = solvents_df[["Solvent", "δD Dispersion", "δP Polar", "δH Hydrogen bonding", "D", "Match Quality"]]
-    return matching_solvents
+    solvents_df["Distance"] = solvents_df.apply(calculate_D, axis=1)
+    
+    # Filter for reasonable and average matches
+    reasonable_matches = solvents_df[solvents_df["Distance"] < 4]
+    average_matches = solvents_df[(solvents_df["Distance"] >= 4) & (solvents_df["Distance"] <= 8)]
+    
+    return reasonable_matches, average_matches
 
 @app.route('/')
 def index():
@@ -36,26 +31,17 @@ def index():
 
 @app.route('/match', methods=['POST'])
 def match():
+    compound_name = request.form.get('compound_name', 'Unknown Compound')
     delta_D = float(request.form['delta_D'])
     delta_P = float(request.form['delta_P'])
     delta_H = float(request.form['delta_H'])
 
     polymer_hsp = (delta_D, delta_P, delta_H)
-    matching_solvents = find_matching_solvents(polymer_hsp, data)
+    reasonable_matches, average_matches = find_matching_solvents(polymer_hsp, data)
 
-    return render_template('results.html', tables=[matching_solvents.to_html(classes='data', header="true")])
-
-@app.route('/api/match', methods=['POST'])
-def api_match():
-    request_data = request.json
-    delta_D = float(request_data['delta_D'])
-    delta_P = float(request_data['delta_P'])
-    delta_H = float(request_data['delta_H'])
-
-    polymer_hsp = (delta_D, delta_P, delta_H)
-    matching_solvents = find_matching_solvents(polymer_hsp, data)
-
-    return jsonify(matching_solvents.to_dict(orient='records'))
+    return render_template('results.html', compound_name=compound_name,
+                           reasonable_matches=reasonable_matches.to_html(classes='table table-striped', header="true"),
+                           average_matches=average_matches.to_html(classes='table table-striped', header="true"))
 
 if __name__ == '__main__':
     app.run(debug=True)
