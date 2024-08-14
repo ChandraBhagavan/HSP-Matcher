@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSP Matcher</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center my-5">Find Matching Solvents</h1>
+        <form action="/match" method="post">
+            <div class="form-group">
+                <label for="compound_name">Compound Name (Optional):</label>
+                <input type="text" class="form-control" id="compound_name" name="compound_name" placeholder="Enter the compound name">
+            </div>
+            <div class="form-group">
+                <label for="delta_D">δD Dispersion:</label>
+                <input type="text" class="form-control" id="delta_D" name="delta_D" required>
+            </div>
+            <div class="form-group">
+                <label for="delta_P">δP Polar:</label>
+                <input type="text" class="form-control" id="delta_P" name="delta_P" required>
+            </div>
+            <div class="form-group">
+                <label for="delta_H">δH Hydrogen bonding:</label>
+                <input type="text" class="form-control" id="delta_H" name="delta_H" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Find Solvents</button>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
